@@ -1,6 +1,6 @@
-import requests
 import random
 import time 
+import requests
 class CryptoPair():
     
     
@@ -17,35 +17,11 @@ class CryptoPair():
         self.cryptoList.append(self.base+self.quote)
         self.cryptoDict.update({self.base + self.quote:self.price})
 
-    # def findMatch(self,balances):
-    #     prices = self.cryptoPrices
-        
-    #     currencys = self.cryptoList
-    #     tradeList = []
-    #     for crypto in currencys:
-    #         base = crypto[:3:]
-    #         quote = crypto[3::]
-    #         if balances[1] == base:
-                
-    #             first = (balances[0] * prices[currencys.index(crypto)], quote)
-    #             # currencys.pop(currencys.index(crypto))
-    #             tradeList.append(first)
-                
-    #         elif balances[1] == quote:
-    #             # base = crypto[:3:]
-    #             # print(crypto)
-    #             conversion  = prices[currencys.index(crypto)]
-    #             # print(conversion)
-    #             first = (balances[0] / conversion, base)
-    #             # print(first)
-    #             tradeList.append(first)
-    #     return tradeList
-
     def show_all_Cryptos(self):
         for crypto in self.cryptoList:
             print(crypto)
-            # print(self.cryptoPrices)
-        return self.cryptoPrices
+            
+        return self.cryptoList
     
     
 
@@ -85,58 +61,134 @@ CRVBTC = fetch_pair('CRV','BTC','CRV', 'BTC','CRV','XBT')
 eath = userAccount('Papadueno')
 # pey = userAccount('Plazmabacon')
 eath.add_currency((5,'ETH'))
-eath.add_currency((30,'SOL'))
-# print(eath.get_list())
-# pey.add_currency((1000,'USD'))
-# pey.add_currency((1,'BTC'))
-# cryptosDict = eath.cryptoDict
-# # print(cryptosDict)
-# currencys = eath.cryptoList
-# cryptos = eath.cryptoPrices
-# print(eath.get_balances())
-# print(eath.findMatch())
-# print('=======================')
-# print(pey.findMatch().findMatch())
+# eath.add_currency((30,'SOL'))
 currencys = CryptoPair.cryptoDict
 priceIndex = CryptoPair.cryptoPrices
 def findMatch(dict, currencys):
     tradesList = {}
-    for key in dict:
-        
+    for key in dict: 
+        # Loop through balances given in method call
         key = key
         keyvalue = dict[key]
         for crypto in currencys:
-            
+            # Loop through crypto currency list
             base = crypto[:3:]
             quote = crypto[3::]
             if keyvalue == base:
-                
+                # If a currency in the given wallet 
                 first = (key * currencys[crypto], quote)
-                tradesList.update({first[0]:first[1]})
+                i = 0
+                uniqueTrade = []
+                # tradesList.update({first[0]:first[1]})
+                uniqueTrade.append({1:first})
                 print("First trade: {} {} into {} ".format(key, keyvalue, first))
-                currencys = CryptoPair.cryptoDict
+                
                 for crypto in currencys:
                     base = crypto[:3:]
                     quote = crypto[3::]
+                    # print(keyvalue)
                     
-                    currencys = CryptoPair.cryptoDict
-                    if first[1] == base and keyvalue != base:
+                    if first[1] == base and keyvalue != quote:
                         second = (first[0] * currencys[crypto], quote)
-                        tradesList.update({second[0]:second[1]})
+                        # tradesList.update({second[0]:second[1]})
+                        uniqueTrade.append({2:second})
                         print("Second trade: {} {} into {} ".format(first[0], first[1], second))
+
+                        for crypto in currencys:
+                            base = crypto[:3:]
+                            quote = crypto[3::]
+                            if second[1] == base:
+                                third = (second[0] * currencys[crypto], quote)
+                                # tradesList.update({third[0]:third[1]})
+                                uniqueTrade.append({3:third})
+                                tradesList.update({i:uniqueTrade})
+                                i += 1
+                                print("Third trade: {} {} into {} ".format(second[0], second[1], third))
+                            elif second[1] == quote:
+                                third = (second[0] / currencys[crypto], base)
+                                # tradesList.update({third[0]:third[1]})
+                                uniqueTrade.append({3:third})
+                                tradesList.update({i:uniqueTrade})
+                                i += 1
+                                print("Third trade: {} {} into {}".format(second[0], second[1], third))
+
+                    elif first[1] == quote and keyvalue != base:
+                        second = (first[0] / currencys[crypto], base)
+                        # tradesList.update({second[0]:second[1]})
+                        uniqueTrade.append({2:second})
+                        print("Second trade: {} {} into {} ".format(first[0], first[1], second))
+                        for crypto in currencys:
+                            base = crypto[:3:]
+                            quote = crypto[3::]
+                            if second[1] == base:
+                                third = (second[0] * currencys[crypto], quote)
+                                # tradesList.update({third[0]:third[1]})
+                                uniqueTrade.append({3:third})
+                                tradesList.update({i:uniqueTrade})
+                                i += 1
+                                print("Third trade: {} {} into {} ".format(second[0], second[1], third))
+                            elif second[1] == quote:
+                                third = (second[0] / currencys[crypto], base)
+                                # tradesList.update({third[0]:third[1]})
+                                uniqueTrade.append({3:third})
+                                tradesList.update({i:uniqueTrade})
+                                i += 1
+                                print("Third trade: {} {} into {}".format(second[0], second[1], third))
+                        
+            elif keyvalue == quote:
+                first = ((key / currencys[crypto]) , base)
+                # first = (key * currencys[crypto], quote)
+                i = 0
+                uniqueTrade = []
+                print("First Trade: {} {} into {}".format(key, keyvalue, first))
+                # tradesList.update({first[0]:first[1]})
+                uniqueTrade.append({1:first})
+                for crypto in currencys:
+                    base = crypto[:3:]
+                    quote = crypto[3::]
+                    if first[1] == base and keyvalue != quote:
+                        second = (first[0] * currencys[crypto], quote)
+                        # tradesList.update({second[0]:second[1]})
+                        uniqueTrade.append({2:second})
+                        print("Second trade: {} {} into {} {}".format(first[0], first[1], second[0], second[1]))
+                        for crypto in currencys:
+                            base = crypto[:3:]
+                            quote = crypto[3::]
+                            if second[1] == base:
+                                third = (second[0] * currencys[crypto], quote)
+                                # tradesList.update({third[0]:third[1]})
+                                uniqueTrade.append({3:third})
+                                tradesList.update({i:uniqueTrade})
+                                i += 1
+                                print("Third trade: {} {} into {} ".format(second[0], second[1], third))
+                            elif second[1] == quote:
+                                third = (second[0] / currencys[crypto], base)
+                                tradesList.update({third[0]:third[1]})
+                                
+                                print("Third trade: {} {} into {}".format(second[0], second[1], third))
                     elif first[1] == quote and keyvalue != quote:
                         second = (first[0] / currencys[crypto], base)
                         tradesList.update({second[0]:second[1]})
-                        print("Second trade: {} {} into {} ".format(first[0], first[1], second))
-            elif keyvalue == quote:
-                base = crypto[:3:]
-                conversion  = (key / currencys[crypto])
-                # print(conversion)
-                first = (conversion , base)
-                print("First Trade: {} {} into {}".format(key, keyvalue, first))
-                tradesList.update({first[0]:first[1]})
+                        
+                        
+                        print("Second trade: {} {} into {} {}".format(first[0], first[1], second[0], second[1]))
+                        for crypto in currencys:
+                            base = crypto[:3:]
+                            quote = crypto[3::]
+                            if second[1] == base:
+                                third = (second[0] * currencys[crypto], quote)
+                                tradesList.update({third[0]:third[1]})
+                                print("Third trade: {} {} into {} ".format(second[0], second[1], third))
+                            elif second[1] == quote:
+                                third = (second[0] / currencys[crypto], base)
+                                tradesList.update({third[0]:third[1]})
+                                
+                                print("Third trade: {} {} into {}".format(second[0], second[1], third))
     
     return tradesList
-findMatch(eath.get_balances(), CryptoPair.cryptoDict)
-# findMatch(findMatch(findMatch(eath.get_balances())))
+first_test = findMatch(eath.get_balances(), currencys)
+# print(len(first_test))
+# for result in first_test:
+#     print(first_test[result])
+# findMatch(findMatch(eath.get_balances(),CryptoPair.cryptoDict),CryptoPair.cryptoDict)
 
